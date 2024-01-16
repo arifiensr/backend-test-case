@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model book {
+  code       String      @id(map: "book_pk") @db.VarChar
+  title      String      @db.VarChar
+  author     String      @db.VarChar
+  stock      Int         @default(0)
+  created_at DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at DateTime    @default(now()) @db.Timestamptz(6)
+  updater    String      @default("Admin") @db.VarChar
+  borrowing  borrowing[]
+}
+
+model borrowing {
+  member_code    String   @db.VarChar
+  book_code      String   @db.VarChar
+  borrowing_date DateTime @default(dbgenerated("CURRENT_DATE")) @db.Timestamptz(6)
+  deadline_date  DateTime @default(dbgenerated("(CURRENT_DATE + '7 days'::interval)")) @db.Timestamptz(6)
+  book           book     @relation(fields: [book_code], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "borrowing_book_fk")
+  member         member   @relation(fields: [member_code], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "borrowing_member_fk")
+
+  @@id([member_code, book_code], map: "borrowing_pk")
+}
+
+model history {
+  id             Int      @id(map: "history_pk") @default(autoincrement())
+  member_code    String   @db.VarChar
+  book_code      String   @db.VarChar
+  borrowing_date DateTime @db.Timestamptz(6)
+  returning_date DateTime @db.Timestamptz(6)
+}
+
+model member {
+  code                 String      @id(map: "member_pk") @db.VarChar
+  name                 String      @db.VarChar
+  is_penalty           Boolean     @default(false)
+  penalty_date         DateTime?   @db.Timestamptz(6)
+  penalty_expired_date DateTime?   @db.Timestamptz(6)
+  created_at           DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime    @default(now()) @db.Timestamptz(6)
+  updater              String      @default("Admin") @db.VarChar
+  borrowing            borrowing[]
+}
