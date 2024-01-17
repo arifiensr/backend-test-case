@@ -57,4 +57,46 @@ export class MemberService {
       throw new HttpException(error.message, error.status);
     }
   }
+
+  async findOne(code: string) {
+    try {
+      const where: Object = {};
+      where['code'] = code
+
+      const [count, result] = await this.prisma.$transaction([
+        this.prisma.member.count({
+          where,
+        }),
+        this.prisma.member.findUnique({
+          where: {
+            code: code,
+          },
+          include: {
+            borrowing: true,
+          }
+        }),
+      ]);
+
+      if (!result) {
+        throw new HttpException('Member not found!', HttpStatus.NOT_FOUND);
+      }
+
+      result['borrowed_books'] = result['borrowing']
+      result['borrowed_books_count'] = result['borrowing'].length
+      delete result['borrowing']
+
+      return {
+        data: result,
+        metadata: {
+          count: count,
+        },
+        _meta: {
+          status: 'Success',
+          message: 'Success get member!',
+        },
+      };
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }

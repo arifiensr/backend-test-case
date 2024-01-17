@@ -1,7 +1,7 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { MemberService } from './member.service';
-import { FindMemberDto } from 'src/dto';
-import { ApiAcceptedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { FindMemberDto } from '../../dto';
+import { ApiNotFoundResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Member')
 @Controller('member')
@@ -13,5 +13,13 @@ export class MemberController {
   @Get()
   findAll(@Query() params: FindMemberDto) {
     return this.memberService.findAll(params);
+  }
+  
+  @ApiOkResponse({ description: 'Success get a member!' })
+  @ApiNotFoundResponse({ description: 'Member not found!' })
+  @ApiParam({ name: 'code', type: String, example: 'M001' })
+  @Get(':code')
+  findOne(@Param('code') code: string) {
+    return this.memberService.findOne(code);
   }
 }

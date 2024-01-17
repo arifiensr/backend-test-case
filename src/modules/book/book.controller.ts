@@ -1,12 +1,13 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { BookService } from './book.service';
 import {
   ApiTags,
   ApiOkResponse,
   ApiNotFoundResponse,
   ApiCreatedResponse,
+  ApiParam,
 } from '@nestjs/swagger';
-import { BorrowBookDto, FindBookDto, ReturnBookDto } from 'src/dto';
+import { BorrowBookDto, FindBookDto, ReturnBookDto } from '../../dto';
 
 @ApiTags('Book')
 @Controller('book')
@@ -18,6 +19,14 @@ export class BookController {
   @Get()
   findAll(@Query() params: FindBookDto) {
     return this.bookService.findAll(params);
+  }
+
+  @ApiOkResponse({ description: 'Success get a book!' })
+  @ApiNotFoundResponse({ description: 'Book not found!' })
+  @ApiParam({ name: 'code', type: String, example: 'JK-45' })
+  @Get(':code')
+  findOne(@Param('code') code: string) {
+    return this.bookService.findOne(code);
   }
 
   @ApiCreatedResponse({ description: 'Success borrow a book!' })

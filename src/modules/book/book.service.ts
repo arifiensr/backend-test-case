@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { BorrowBookDto, FindBookDto, ReturnBookDto } from 'src/dto';
+import { BorrowBookDto, FindBookDto, ReturnBookDto } from '../../dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class BookService {
 
       where['stock'] = {
         gt: 0,
-      }
+      };
 
       const [count, result] = await this.prisma.$transaction([
         this.prisma.book.count({
@@ -45,6 +45,45 @@ export class BookService {
         _meta: {
           status: 'Success',
           message: 'Success get books!',
+        },
+      };
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  async findOne(code: string) {
+    try {
+      const where: Object = {};
+      where['code'] = code;
+      where['stock'] = {
+        gt: 0,
+      };
+
+      const [count, result] = await this.prisma.$transaction([
+        this.prisma.book.count({
+          where,
+        }),
+        this.prisma.book.findUnique({
+          where: {
+            code: code,
+            stock: { gt: 0 },
+          },
+        }),
+      ]);
+
+      if (!result) {
+        throw new HttpException('Book not found!', HttpStatus.NOT_FOUND);
+      }
+
+      return {
+        data: result,
+        metadata: {
+          count: count,
+        },
+        _meta: {
+          status: 'Success',
+          message: 'Success get a book!',
         },
       };
     } catch (error) {

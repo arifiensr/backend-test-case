@@ -22,22 +22,22 @@ export class BorrowBookDto {
   @ApiProperty({ required: true, description: `Member's unique code`, example: 'M001' })
   @IsString()
   @IsNotEmpty()
-  member_code?: string;
+  member_code: string;
 
-  @ApiProperty({ required: false, description: `Book's unique code`, example: 'JK-45' })
+  @ApiProperty({ required: true, description: `Book's unique code`, example: 'JK-45' })
   @IsString()
   @IsNotEmpty()
-  book_code?: string;
+  book_code: string;
 }
 
 export class ReturnBookDto {
   @ApiProperty({ required: true, description: `Member's unique code`, example: 'M001' })
   @IsString()
   @IsNotEmpty()
-  member_code?: string;
+  member_code: string;
 
-  @ApiProperty({ required: false, description: `Book's unique code`, example: 'JK-45' })
+  @ApiProperty({ required: true, description: `Book's unique code`, example: 'JK-45' })
   @IsString()
   @IsNotEmpty()
-  book_code?: string;
+  book_code: string;
 }
